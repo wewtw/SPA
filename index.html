@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <!-- CSS only -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+</head>
+<body>
+<header>
+  <div class="container"  color="green">
+    <a href="#/home">Home</a>  
+    <a href="#/product" >Products</a>
+    <a href="#/blog" >Blog</a> 
+    <a href="#/pricing">Pricing</a>  
+    
+  
+  </div>
+</header>
+<div class="content" id="content"></div>
+
+<script>
+    var state = '';//will be used to save history
+
+    var routes = {//this object holds the routes 
+        '':          'home.html', //if no route is given go home     
+        '/':         'home.html', //if only a slash is given go home
+        '#/home':    'home.html',                
+        '#/product':  'product.html',        
+        '#/blog':    'blog.html',
+        '#/pricing': 'pricing.html',
+    };
+
+    async function router(){
+        console.log(location.hash);
+        var innerElement = '';//use to taget the innner elements of a page.
+
+        // get requested page
+        var link = window.location.hash;
+
+        // ----------------------------------------
+        // If more than one parameter in the link, 
+        // I am targeting an element in the page, 
+        // an anchor. First load page, the scroll
+        // the element into view.
+        // ----------------------------------------
+
+        var count = (link.split("/").length - 1);//counts the number of extantions if there is more than 1 take        
+        if (count > 1) {
+            // anchor element 
+            innerElement = link.split("/")[2];            
+
+            // page to load
+            link = '#/' + link.split("/")[1];
+        }
+        ////////////////////////////////
+        // Avoid reloading the page if the link is internal. this is good for things like videos and music and other files that takes more time to load. so navigate without refreshing and 
+        //prevent waiting for large files to load in again. 
+        ////////////////////////////
+        if(state === link && innerElement){//if the past is the same as the link and if the element is in the same place do this.
+          scrollIntoView(innerElement);//take me to the next element without reloading.
+          state = link; //reset the past to eual the link again like in the paramiters above.
+          return;
+        }
+        ///now if past is not the same and the selected element is new than make past = link.
+        state = link;
+        //this make it so where just moving around the page compared to reloading on every new click.
+        
+        
+        // get path (route) for page
+        var route = routes[link];
+
+        // if route exists, load page
+        if (route) loadPage(route, innerElement);
+    };
+    router();//runs router.
+    //this async function loads the page. 
+    async function loadPage(url, innerElement){
+        // load page
+        const res = await fetch(url);
+        const content = await res.text();
+        const element = document.getElementById('content');
+        element.innerHTML = content;
+
+        // if there is an innner element scroll to it.
+        if (innerElement) {            
+            scrollIntoView(innerElement);
+        }        
+    }
+    // the scrolling cuntion that just scrolls into the next (link)element. 
+    function scrollIntoView(id){
+        document.getElementById(id).scrollIntoView();
+    }
+
+    window.addEventListener('hashchange', router);//lisens to browser events.   
+  
+</script>
+  
+</body>
+</html>
